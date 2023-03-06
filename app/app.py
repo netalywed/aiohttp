@@ -14,49 +14,52 @@ async def get_character(character_id):
     session = ClientSession()
     response = await session.get(f'https://swapi.dev/api/people/{character_id}')
     character = await response.json()
+    if character == {'detail': 'Not found'}:
+        pass
+    else:
+        # получаем названия видов
+        print('preparing', character_id)
+        species_links = character['species']
+        species = []
+        for species_link in species_links:
+            if species_link:
+                response1 = await session.get(species_link)
+                species_info = await response1.json()
+                species_name = species_info['name']
+                species.append(species_name)
+            else:
+                break
+        character['species'] = ', '.join(species)
 
-    # получаем названия видов
-    species_links = character['species']
-    species = []
-    for species_link in species_links:
-        if species_link:
-            response1 = await session.get(species_link)
-            species_info = await response1.json()
-            species_name = species_info['name']
-            species.append(species_name)
-        else:
-            break
-    character['species'] = ', '.join(species)
 
+        # получаем названия машин
+        vehicles_links = character['vehicles']
+        vehicles = []
+        for vehicle_link in vehicles_links:
+            if vehicle_link:
+                response2 = await session.get(vehicle_link)
+                vehicle_info = await response2.json()
+                vehicle = vehicle_info['name']
+                species.append(vehicle)
+            else:
+                break
+        character['vehicles'] = ', '.join(vehicles)
 
-    # получаем названия машин
-    vehicles_links = character['vehicles']
-    vehicles = []
-    for vehicle_link in vehicles_links:
-        if vehicle_link:
-            response2 = await session.get(vehicle_link)
-            vehicle_info = await response2.json()
-            vehicle = vehicle_info['name']
-            species.append(vehicle)
-        else:
-            break
-    character['vehicles'] = ', '.join(vehicles)
+        #получаем названия кораблей
+        starships_links = character['starships']
+        starships = []
+        for starship_link in starships_links:
+            if starship_link:
+                response3 = await session.get(starship_link)
+                starship_info = await response3.json()
+                starship = starship_info['name']
+                starships.append(starship)
+            else:
+                break
+        character['starships'] = ', '.join(starships)
 
-    #получаем названия кораблей
-    starships_links = character['starships']
-    starships = []
-    for starship_link in starships_links:
-        if starship_link:
-            response3 = await session.get(starship_link)
-            starship_info = await response3.json()
-            starship = starship_info['name']
-            starships.append(starship)
-        else:
-            break
-    character['starships'] = ', '.join(starships)
-
-    print('ready', character_id)
-    print(character)
+        print('ready', character_id)
+        print(character)
     await session.close()
     return character
 
